@@ -2,8 +2,11 @@
 
 namespace app\controllers;
 
+use app\models\ImageForm;
+use app\services\AddPreviewByColor;
 use Yii;
 use yii\web\Controller;
+use yii\web\UploadedFile;
 
 class SiteController extends Controller
 {
@@ -26,6 +29,19 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        $model = new ImageForm();
+
+        if (Yii::$app->request->isPost) {
+            $model->file = UploadedFile::getInstance($model, 'file');
+
+            if ($model->validate()) {
+                $service = new AddPreviewByColor($model->file);
+                return $service->execute();
+            }
+        }
+
+        return $this->render('index', [
+            'model' => $model,
+        ]);
     }
 }
